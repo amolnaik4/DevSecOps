@@ -1,0 +1,15 @@
+filebeat.config.modules:
+   path: ${path.config}/modules.d/*.yml
+filebeat.modules:
+- module: logstash
+  log:
+    enabled: true
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - "/home/vagrant/logs/*.log"
+output.logstash:
+  enabled: true
+  hosts: ["logstash.devops:5000"]
+  ssl.enabled: false

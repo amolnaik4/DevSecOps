@@ -1,0 +1,16 @@
+---
+# handlers file for hashicorp-vault
+- name: Reload systemd
+  command: systemctl daemon-reload
+  listen: systemd_reload
+
+- name: Restart Filebeat
+  service:
+    name: filebeat
+    state: started
+    enabled: yes
+  changed_when: false
+  register: get_result
+  until: get_result is success
+  retries: 3
+  delay: 2

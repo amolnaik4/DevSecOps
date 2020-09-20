@@ -1,0 +1,30 @@
+- name: Add an Apt signing key, uses whichever key is at the URL
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add an Apt signing key, uses whichever key is at the URL
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
+    state: present
+
+- name: Install pre-requisites
+  package:
+    name: apt-transport-https
+    update_cache: yes
+
+- name: Install elasticsearch
+  package:
+    name: elasticsearch
+    update_cache: yes
+  register: get_result
+  until: get_result is success
+  retries: 3
+  delay: 2          
+  
+- name: Copy the config file
+  template:
+    src: elasticsearch.yml.j2
+    dest: "/etc/elasticsearch/elasticsearch.yml"
+  notify: Restart Elasticsearch
+

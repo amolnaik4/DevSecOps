@@ -1,0 +1,13 @@
+---
+- name: Installs an ElasticSearch Server
+  gather_facts: True
+  hosts: all
+
+  roles:
+  - role: infrastructure/provisioning/roles/geerlingguy.java
+    become: yes
+  - role: infrastructure/provisioning/roles/elk-elasticsearch
+    vars:
+      elasticsearch_server: elastic.devops
+      elasticsearch_server_port: 9200
+    become: yes       

@@ -1,0 +1,10 @@
+---
+docker_insecure_registry_domain: "registry.devops:5000"
+# Jenkins Email Settings
+jenkins_email_suffix: "@mail"
+jenkins_reply_to_email: "user@domain.com"
+jenkins_smtp_host: "domain.com"
+jenkins_smtp_use_ssl: "false"
+jenkins_smtp_port: "1025"
+jenkins_smtp_charset: "UTF-8"
+pre_pull_docker_images: ["openjdk:8-jre-alpine","node:12-alpine","nginx:alpine"]

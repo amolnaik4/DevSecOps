@@ -1,0 +1,62 @@
+---
+- name: Install Jenkins
+# https://github.com/geerlingguy/ansible-role-java/issues/58
+  gather_facts: True
+  hosts: all
+  # To run locally
+  #hosts: localhost
+  #connection: local
+  become: yes
+
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Install prerequisites
+      package:
+        name: "{{ item }}"
+        update_cache: yes
+      with_items:
+          - jq
+          - apt-transport-https
+      become: yes      
+
+    - import_tasks: jenkins.yml
+    
+  roles:
+    - role: infrastructure/provisioning/roles/geerlingguy.jenkins
+      become: yes
+      vars: 
+        # Jenkins 
+        # https://github.com/geerlingguy/ansible-role-jenkins/issues/269
+        jenkins_version: "2.254"
+        jenkins_admin_username: jenkins
+        jenkins_admin_password: jenkins
+        jenkins_http_port: 8080
+        jenkins_plugins_install_dependencies: yes
+        jenkins_package_state: present
+        jenkins_java_options: "-Djenkins.install.runSetupWizard=false -Xms512m -Xmx1024m"
+        jenkins_plugins:
+          - git # Installs Credentials and SSH credentials plugins
+          - ssh
+          - ws-cleanup
+          - timestamper
+          - credentials-binding
+          - ansicolor
+          - workflow-aggregator
+          - email-ext
+          - blueocean
+          - mailer
+          - ssh-steps
+          - monitoring
+      
+    - role: infrastructure/provisioning/roles/geerlingguy.docker
+      become: yes
+      vars:
+        docker_users: ["{{ jenkins_process_user }}","vagrant"]
+    - role: infrastructure/provisioning/roles/ansible-role-maven
+    - role: infrastructure/provisioning/roles/geerlingguy.nodejs
+      become: yes
+      vars:
+        nodejs_version: "12.x"
+        nodejs_npm_global_packages: ["rimraf","mkdirp","copyfiles"]

@@ -1,0 +1,17 @@
+filebeat.config.modules:
+   path: ${path.config}/modules.d/*.yml
+filebeat.modules:
+- module: logstash
+  log:
+    enabled: true
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+{% for item in log_file_locations %}  
+    -  {{ item }}
+{% endfor %}
+output.logstash:
+  enabled: true
+  hosts: ["{{logstash_server}}"]
+  ssl.enabled: false

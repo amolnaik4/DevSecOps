@@ -1,0 +1,40 @@
+input
+{
+    beats
+    {
+        ssl => false
+        port => 5000
+        codec => "json"
+    }
+}
+filter {
+# Check if message is a JSON string if yes then parse it.
+  if [message] =~ "\A\{.+\}\z" {
+        json {
+          source => "message"
+          target => "httpRequest"
+        }
+      mutate {
+          remove_field => [ "json", "message" ]
+        }
+  }
+        mutate {    
+          remove_field => [ "json", "agent" ]
+          remove_field => [ "json", "tags" ]
+          remove_field => [ "json", "thread_name" ]
+        }
+
+ }
+output {
+   # For Debugging Purposes
+   # stdout { codec => rubydebug }
+   # file {
+   #    path => "/home/vagrant/logstash.log"
+   #    codec => rubydebug
+   # }
+    elasticsearch {
+      hosts => ["{{elasticsearch_server}}"]
+      manage_template => false
+      index => "logstash-%{+YYYY.MM.dd}"
+   }
+}

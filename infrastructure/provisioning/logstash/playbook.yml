@@ -1,0 +1,12 @@
+---
+- name: Installs a Central Logstash Server
+  gather_facts: True
+  hosts: all
+
+  roles:
+  - role: infrastructure/provisioning/roles/geerlingguy.java
+    become: yes
+  - role: infrastructure/provisioning/roles/elk-logstash
+    vars:
+      elasticsearch_server: http://elastic.devops:9200
+    become: yes    

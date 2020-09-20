@@ -1,0 +1,85 @@
+{
+  "version": "2.4",
+  "vulnerabilities": [
+    {
+      "id": "5ada1450b1e40e36200ad86c13168a909c61a946d8a77a081cddb01c75119f0a",
+      "category": "sast",
+      "name": "AWS API key",
+      "message": "AWS API key",
+      "description": "Amazon Web Services API key detected; please remove and revoke it if this is a leak.",
+      "cve": "app.py:8698b895edbad632c93a6eaf43e12c605091ddacbe378e237e4c32c67056d0aa:AWS",
+      "severity": "Critical",
+      "confidence": "Unknown",
+      "scanner": {
+        "id": "gitleaks",
+        "name": "Gitleaks"
+      },
+      "location": {
+        "file": "app.py",
+        "start_line": 112,
+        "end_line": 112,
+        "dependency": {
+          "package": {}
+        }
+      },
+      "identifiers": [
+        {
+          "type": "gitleaks_rule_id",
+          "name": "Gitleaks rule ID AWS",
+          "value": "AWS"
+        }
+      ]
+    },
+    {
+      "id": "20cbd6800a425019245ca509edc060b1e290eb6226cda9897c0645c8310b85b3",
+      "category": "sast",
+      "message": "Possible binding to all interfaces.",
+      "cve": "app.py:c6eaa56b21c7ef8f5f58ceb19be379d901f9a6884445a18fd09b532eff0095d1:B104",
+      "severity": "Medium",
+      "confidence": "Medium",
+      "scanner": {
+        "id": "bandit",
+        "name": "Bandit"
+      },
+      "location": {
+        "file": "app.py",
+        "start_line": 119,
+        "end_line": 119
+      },
+      "identifiers": [
+        {
+          "type": "bandit_test_id",
+          "name": "Bandit Test ID B104",
+          "value": "B104",
+          "url": "https://docs.openstack.org/bandit/latest/plugins/b104_hardcoded_bind_all_interfaces.html"
+        }
+      ]
+    },
+    {
+      "id": "f4763e18fbe8231311cb4ae74d04230f8c5a95a3fa85f11d11137c2a0fb34687",
+      "category": "sast",
+      "message": "Possible hardcoded password: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'",
+      "cve": "app.py:50a423218c3853938583ee7fa3b45415ace70b13bf4eab9137c2f3f654be15fe:B105",
+      "severity": "Low",
+      "confidence": "Medium",
+      "scanner": {
+        "id": "bandit",
+        "name": "Bandit"
+      },
+      "location": {
+        "file": "app.py",
+        "start_line": 113,
+        "end_line": 113
+      },
+      "identifiers": [
+        {
+          "type": "bandit_test_id",
+          "name": "Bandit Test ID B105",
+          "value": "B105",
+          "url": "https://docs.openstack.org/bandit/latest/plugins/b105_hardcoded_password_string.html"
+        }
+      ]
+    }
+  ],
+  "remediations": []
+}

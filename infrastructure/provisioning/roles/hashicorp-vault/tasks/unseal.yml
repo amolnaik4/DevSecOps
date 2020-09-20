@@ -1,0 +1,56 @@
+- name: Parse output of vault init
+  set_fact:
+    vault_init_parsed: "{{ vault_init_results.stdout | from_json }}"
+  when: stat_result.stat.exists == False 
+
+- name: Write unseal keys to files
+  copy:
+    dest: "{{ vault_config_directory }}/unseal_key_{{ item.0 }}"
+    content: "{{ item.1 }}"
+    owner: root
+    group: root
+    mode: "655"    
+  with_indexed_items: "{{ vault_init_parsed.unseal_keys_hex }}"
+  delegate_to: localhost
+  become: yes 
+  when: stat_result.stat.exists == False 
+
+- name: Write root token to file
+  copy:
+    content: "{{ vault_init_parsed.root_token }}"
+    dest: "{{vault_config_directory}}/rootkey"
+    owner: root
+    group: root
+    mode: "655"
+  delegate_to: localhost
+  become: yes 
+  when: stat_result.stat.exists == False 
+
+- name: Write root token to file
+  copy:
+    content: "{{ vault_init_parsed.root_token }}"
+    dest: "{{vault_config_directory}}/rootkey"
+    owner: root
+    group: root
+    mode: "655"    
+  become: yes 
+  when: stat_result.stat.exists == False 
+
+#Copy vault_unseal.sh so that everytime system reboots the vault is unsealed by default.
+- name: Copy vault_unseal.sh to profile.d
+  template:
+    src: vault_unseal.sh
+    dest: /etc/profile.d/
+    owner: root
+    group: root
+    mode: "655"
+  become: yes
+  when: stat_result.stat.exists == False
+       
+- name: Unseal Vault
+  shell: 'sh /etc/profile.d/vault_unseal.sh' 
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:8200"
+  args:
+    executable: /bin/bash
+    

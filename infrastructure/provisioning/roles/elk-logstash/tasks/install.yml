@@ -1,0 +1,41 @@
+- name: Add an Apt signing key, uses whichever key is at the URL
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Add an Apt signing key, uses whichever key is at the URL
+  apt_repository:
+    repo: deb https://artifacts.elastic.co/packages/7.x/apt stable main
+    state: present
+
+- name: Install pre-requisites
+  package:
+    name: apt-transport-https
+    update_cache: yes
+
+- name: Install logstash
+  package:
+    name: logstash
+    update_cache: yes
+  register: get_result
+  until: get_result is success
+  retries: 3
+  delay: 2          
+
+- name: Copy the logstash config file
+  template:
+    src: logstash.yml
+    dest: "/etc/logstash/logstash.yml"
+    owner: root
+    group: root
+    mode: "655" 
+
+- name: Copy the springular.conf file
+  template:
+    src: springular.conf.j2
+    dest: "/etc/logstash/conf.d/springular.conf"
+    owner: root
+    group: root
+    mode: "655" 
+  notify: Restart Logstash
+
