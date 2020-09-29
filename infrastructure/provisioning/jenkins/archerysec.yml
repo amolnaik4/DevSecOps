@@ -1,0 +1,9 @@
+- name: Install archerysec cli
+  command: pip install archerysec-cli
+  become: yes
+
+- name: Move archerysec-cli binary to bin folder
+  file:
+    src: /home/vagrant/.local/bin/archerysec-cli
+    dest: /usr/local/bin/archerysec-cli
+  become: yes

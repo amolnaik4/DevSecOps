@@ -17,3 +17,7 @@ resources/static/
 logs/
 *.bak
 *.log
+.talismanrc
+infrastructure/provisioning/archerysec/envs
+.idea
+.DS_Store

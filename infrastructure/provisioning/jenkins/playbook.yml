@@ -19,9 +19,11 @@
       with_items:
           - jq
           - apt-transport-https
+          - python-pip
       become: yes      
 
     - import_tasks: jenkins.yml
+    - import_tasks: archerysec.yml
     
   roles:
     - role: infrastructure/provisioning/roles/geerlingguy.jenkins

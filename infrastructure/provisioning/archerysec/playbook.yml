@@ -1,0 +1,19 @@
+---
+  - name: Install archerysec
+    gather_facts: True
+    hosts: all
+
+    roles:
+    - role: infrastructure/provisioning/roles/ansible-role-archerysec
+      become: yes
+
+    tasks:
+      - name: Make static folder www-data
+        file:
+          path: "{{ install_root }}/archerysecurity/static"
+          state: directory
+          owner: "www-data"
+          group: "www-data"
+          mode: a+rx
+          recurse: yes
+        become: yes

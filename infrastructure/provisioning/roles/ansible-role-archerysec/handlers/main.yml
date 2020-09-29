@@ -1,0 +1,29 @@
+- name: restart postgres
+  service: name=postgresql state=restarted
+  become: yes
+
+- name: restart nginx
+  service: name=nginx state=restarted enabled=yes
+  become: yes
+
+- name: restart app
+  service: name=django-bootstrap state=restarted enabled=yes
+  become: yes
+
+- name: restart gunicorn
+  service: name=gunicorn state=restarted
+
+- name: Reload systemd
+  command: systemctl daemon-reload
+  listen: systemd_reload
+  become: yes 
+
+- name: Reload archerysec systemd
+  command: systemctl start archerysec.service
+  listen: systemd_start
+  become: yes 
+
+- name: Enable archerysec systemd
+  command: systemctl enable archerysec
+  listen: systemd_enable
+  become: yes 
