@@ -1,0 +1,161 @@
+- name: Install system packages
+  apt:
+    name:
+      - git
+      - nginx
+      - gunicorn
+      - postgresql
+      - virtualenv
+      - postgresql-server-dev-all
+      - python-pip
+      - python3-dev
+      - python-dev
+      - python-psycopg2
+      - expect
+    state: present
+
+- name: create archerysec directory
+  file:
+    path: /home/archerysec
+    state: directory
+
+- name: create archerysec directory
+  file:
+    path: /home/archerysec/app
+    state: directory
+
+- name: Git checkout
+  git:
+    repo: 'https://github.com/archerysec/archerysec.git'
+    dest: "{{ install_root }}"
+    update: no
+
+
+#- name: Unarchive ArcherySec file that needs to be downloaded
+#  unarchive:
+#    src: https://github.com/archerysec/archerysec/archive/v{{archerysec_version}}.tar.gz
+#    dest: "/home/"
+#    remote_src: yes
+#
+#- name: copy files and directory
+#  synchronize:
+#    src: "/home/archerysec-{{archerysec_version}}/"
+#    dest: "{{ install_root }}"
+
+- name: make sure postgresql server is running
+  service: name=postgresql state=started
+
+- name: create database
+  become_user: postgres
+  postgresql_db: name={{ db_name }}
+
+- name: create database user
+  become_user: postgres
+  postgresql_user: db={{ db_name }} name={{ db_user }} password={{ db_password }} priv=ALL
+
+- name: Create a virtualenv directory
+  file:
+    path: "{{ venv_dir }}"
+    state: directory
+
+- name: Install dependencies
+  pip:
+    requirements: "{{ app_dir }}/requirements_setup.txt"
+    virtualenv: "{{ venv_dir }}"
+    virtualenv_python: python3.6
+
+- name: Make migrations
+  shell: ". {{ install_root }}/envs/bin/activate && {{venv_python}} {{ app_dir }}/manage.py makemigrations "
+  become: yes
+
+- name: Migrate database
+  shell: ". {{ install_root }}/envs/bin/activate && {{venv_python}} {{ app_dir }}/manage.py migrate "
+  become: yes
+
+- name: Create a deploy directory
+  file: path={{ deploy_dir }} state=directory
+  become: yes
+
+- name: Create the gunicorn_start script for running our app from systemd service
+#  template: src=gunicorn_start dest={{ deploy_dir }}/gunicorn_start owner=root group=root
+  template:
+    src: gunicorn_start
+    dest: "{{ deploy_dir }}/gunicorn_start"
+    owner: root
+    group: root
+    mode: a+rx
+  become: yes
+
+- name: Make the gunicorn_start script executable
+  raw: cd {{ deploy_dir }}; chmod +x gunicorn_start
+  become: yes
+
+- name: Write nginx conf file
+  template: src=nginx.conf dest=/etc/nginx/nginx.conf
+  become: yes
+
+- name: add archerysec nginx file
+  template: src=django_bootstrap.conf dest=/etc/nginx/conf.d/{{ project_name }}.conf
+  become: yes
+  notify:
+    - restart nginx
+
+- name: restart nginx
+  service: name=nginx state=restarted enabled=yes
+  become: yes
+
+- name: Write a systemd service file
+  template:
+    src: archerysec.service
+    dest: /etc/systemd/system/archerysec.service
+    owner: root
+    group: root
+    mode: a+rx
+  become: yes
+  notify:
+    - systemd_reload
+    - systemd_start
+    - systemd_enable
+
+- name: start archerysec
+  service: name=archerysec state=started enabled=yes
+  become: yes
+
+- name: Create archerysec group
+  group: name=archerysec
+
+- name: Create archerysec user
+  user: name=archerysec shell=/bin/bash comment="archerysec" group=archerysec
+
+- name: Wait for port 8000 to become open on the host, don't start checking for 10 seconds
+  wait_for:
+    port: 8000
+    delay: 15
+
+- name: Create a User
+  uri:
+    url: http://127.0.0.1:8000/api/createuser/
+    method: POST
+    body: "{'username':'{{admin_user}}','password':'{{admin_pass}}', 'email':'{{admin_email}}'}"
+    body_format: json
+  retries: 5
+  delay: 3
+  ignore_errors: True
+
+- name: Change password tricks
+  template: src=changepassword.sh.j2 dest={{ install_root }}/changepassword.sh mode=0755
+
+- name: Change password tricks
+  command: "{{ install_root }}/changepassword.sh"
+  args:
+    chdir: "{{ install_root }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "{{django_settings_module}}"
+    DB_NAME: "{{db_name}}"
+    DB_USER: "{{db_user}}"
+    DB_PASSWORD: "{{db_password}}"
+    DB_HOST: "{{db_host}}"
+    DJANGO_SECRET_KEY: "{{django_secret_key}}"
+
+- name: remove changepassword.sh
+  file: path="{{ install_root }}/changepassword.sh" state=absent

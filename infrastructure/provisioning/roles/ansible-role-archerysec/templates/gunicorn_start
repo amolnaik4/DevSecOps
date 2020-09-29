@@ -1,0 +1,57 @@
+#!/bin/bash
+
+### Define script variables
+
+# Name of the app
+NAME='{{ project_name }}'
+# Path to virtualenv
+VIRTUALENV='{{ venv_dir }}'
+# Django Project Directory
+DJANGODIR='{{ app_dir }}'
+# The user to run as
+USER=root
+# The group to run as
+GROUP=root
+# Number of worker processes Gunicorn should spawn
+NUM_WORKERS=3
+# Settings file that Gunicorn should use
+DJANGO_SETTINGS_MODULE={{django_settings_module}}
+# WSGI module name
+DJANGO_WSGI_MODULE={{ django_wsgi_module }}
+
+
+### Activate virtualenv and create environment variables
+
+echo "Starting $NAME as `whoami`"
+# Activate the virtual environment
+cd $VIRTUALENV
+source bin/activate
+cd $DJANGODIR
+# Defining the Environment Variables
+export DJANGO_SECRET_KEY='{{ django_secret_key }}'
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+
+# export mail server
+export EMAIL_HOST='{{ mail_host }}'
+export EMAIL_PORT='{{ mail_port }}'
+
+# database info
+export DB_NAME='{{ db_name }}'
+export DB_USER='{{ db_user }}'
+export DB_PASSWORD='{{ db_password }}'
+export DB_HOST='{{ db_host }}'
+
+# Djnago debug false
+export DJANGO_DEBUG=0
+
+# migrate database
+python3 '{{ app_dir }}'/manage.py migrate
+
+### Start Gunicorn
+
+exec gunicorn ${DJANGO_WSGI_MODULE}:application \
+        --name $NAME \
+        --workers $NUM_WORKERS \
+        --log-level=debug \
+        --bind=127.0.0.1:8000
