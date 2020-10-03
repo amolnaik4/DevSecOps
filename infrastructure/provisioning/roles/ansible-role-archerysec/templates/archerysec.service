@@ -1,0 +1,13 @@
+#!/bin/sh
+
+[Unit]
+Description=Django Web App
+After=network.target
+
+[Service]
+PIDFile=/var/run/djangoBootstrap.pid
+ExecStart=/bin/bash {{ deploy_dir }}/gunicorn_start
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
