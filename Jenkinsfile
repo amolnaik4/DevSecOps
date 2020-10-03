@@ -4,10 +4,10 @@ pipeline {
      DOCKER_REGISTRY = "registry.devops:5000"
      SECURE_LOG_LEVEL = "debug"
      LOCAL_MACHINE_IP_ADDRESS="jenkins.devops"
-     ARCHERYSEC_HOST ="http://archerysec.devops" // ArcherySec URL
+     ARCHERYSEC_HOST ="http://localhost:8000" // ArcherySec URL
      // These secrets should be use through Jenkins Secrets in production implementation
      ARCHERYSEC_USER = "admin" // archerysec username
-     ARCHERYSEC_PASS = "devops@123A" // archerysec password
+     ARCHERYSEC_PASS = "admin@123A" // archerysec password
 
    }
    stages {
@@ -28,7 +28,8 @@ pipeline {
                      docker run --env SECURE_LOG_LEVEL=${SECURE_LOG_LEVEL} -v "$PWD:/code" -v /var/run/docker.sock:/var/run/docker.sock registry.gitlab.com/gitlab-org/security-products/dependency-scanning:latest /code
 
                      # create project in archerysec
-
+                     pip install archerysec-cli
+                     
                      DATE=`date +%Y-%m-%d`
 
                      export PROJECT_ID=`archerysec-cli -s ${ARCHERYSEC_HOST} -u ${ARCHERYSEC_USER} -p ${ARCHERYSEC_PASS} --createproject \
