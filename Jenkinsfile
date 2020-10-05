@@ -4,7 +4,7 @@ pipeline {
      DOCKER_REGISTRY = "registry.devops:5000"
      SECURE_LOG_LEVEL = "debug"
      LOCAL_MACHINE_IP_ADDRESS="jenkins.devops"
-     ARCHERYSEC_HOST ="http://localhost:8000" // ArcherySec URL
+     ARCHERYSEC_HOST ="http://archerysec.devops" // ArcherySec URL
      // These secrets should be use through Jenkins Secrets in production implementation
      ARCHERYSEC_USER = "admin" // archerysec username
      ARCHERYSEC_PASS = "admin@123A" // archerysec password
