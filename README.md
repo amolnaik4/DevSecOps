@@ -45,3 +45,7 @@ https://github.com/npatta01/web-deep-learning-classifier
 [dast]: <https://docs.gitlab.com/ee/user/application_security/dast/>
 [container]: <https://docs.gitlab.com/ee/user/application_security/container_scanning/>
 [post]: <https://www.rohitsalecha.com/project/practical_devops/>
+
+#### Add archerysec credential on Jenkins
+http://jenkins.devops:8080/credentials/store/system/domain/_/credential/archerysec/
+![!img](assets/jenkins-archerysec.png)
