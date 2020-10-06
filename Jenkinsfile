@@ -9,13 +9,11 @@ pipeline {
      // These secrets should be use through Jenkins Secrets in production implementation
      // ARCHERYSEC_USER = "admin" // archerysec username
      // ARCHERYSEC_PASS = "devops@123A" // archerysec password
-     
+
      // Archerysec setup
      PROJECT_NAME="devsecops"
      PROJECT_DISC="devsecops project"
      PROJECT_OWNER="Dev"
-   }
-
    }
    stages {
       stage('Build') {
